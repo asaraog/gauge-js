@@ -1,0 +1,24 @@
+name: asaraog-run
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: branch or sha to test
+        required: true
+      grep:
+        description: mocha --grep pattern (empty = all)
+        required: false
+        default: ""
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci
+      - run: npm run lint
+      - run: npx mocha --recursive ${{ inputs.grep && format('--grep "{0}"', inputs.grep) || '' }}
